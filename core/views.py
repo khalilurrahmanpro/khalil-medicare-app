@@ -4,38 +4,47 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import status
-from .models import Medicine, Prescription, Profile,Order,Category
+from rest_framework import status, generics, permissions
+import os
 
-# ২. ক্যাটাগরি এপিআই (সবার জন্য উন্মুক্ত)
+# আপনার মডেল এবং সিরিয়ালাইজার ইমপোর্ট করুন
+from .models import Medicine, Prescription, Profile, Order, Category
+# MedicineSerializer যদি আলাদা ফাইলে থাকে তবে সেখান থেকে ইমপোর্ট করুন, 
+# নাহলে নিচে MedicineListView এর জন্য এটি লাগবে।
+
+# ১. ক্যাটাগরি এপিআই (সবার জন্য উন্মুক্ত)
 @api_view(['GET'])
-@permission_classes([AllowAny]) # এই লাইনটি নিশ্চিত করুন
+@permission_classes([AllowAny])
 def get_categories(request):
     cats = Category.objects.all().values()
     return Response(list(cats))
 
-
-from rest_framework.permissions import AllowAny # নিশ্চিত করুন এটি উপরে আছে
-
+# ২. মেডিসিন এপিআই (সাজানো এবং ছবি সমস্যার সমাধানসহ)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_medicines(request):
     cat_id = request.GET.get('category')
     medicines = Medicine.objects.filter(category_id=cat_id) if cat_id else Medicine.objects.all()
     results = []
+    
     for med in medicines:
+        # Cloudinary এর ইমেজ ইউআরএল নিজেই পূর্ণাঙ্গ থাকে, তাই build_absolute_uri দরকার নেই
+        image_url = med.image.url if med.image else None
+        
         results.append({
-            'id': med.id, 'name': med.name, 'company': med.company,
-            'price': med.price_per_box, 
+            'id': med.id, 
+            'name': med.name, 
+            'company': med.company,
+            'price': float(med.price_per_box), # নিশ্চিত করার জন্য float করা হলো
             'strips_per_box': med.strips_per_box,
-            'box_discount': med.box_discount_percent,   # নতুন
-            'strip_discount': med.strip_discount_percent, # নতুন
+            'box_discount': med.box_discount_percent,
+            'strip_discount': med.strip_discount_percent,
             'description': med.description,
-            'image': request.build_absolute_uri(med.image.url) if med.image else None,
+            'image': image_url,
         })
     return Response(results)
 
-# ২. ইউজার রেজিস্ট্রেশন (ফোন নম্বরসহ)
+# ৩. ইউজার রেজিস্ট্রেশন
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
@@ -52,18 +61,15 @@ def register_user(request):
     token, _ = Token.objects.get_or_create(user=user)
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
-# ৩. লগইন এপিআই (Username, Email বা Phone দিয়ে)
+# ৪. লগইন এপিআই
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):
     login_id = request.data.get('username')
     password = request.data.get('password')
     
-    user = None
-    # ইউজারনেম দিয়ে চেক
     user = authenticate(username=login_id, password=password)
     
-    # ইমেইল দিয়ে চেক
     if not user:
         try:
             u = User.objects.get(email=login_id)
@@ -71,7 +77,6 @@ def login_user(request):
         except User.DoesNotExist:
             pass
 
-    # ফোন নম্বর দিয়ে চেক
     if not user:
         try:
             p = Profile.objects.get(phone_number=login_id)
@@ -85,39 +90,39 @@ def login_user(request):
     else:
         return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-# ৪. ইউজারের প্রোফাইল এপিআই
+# ৫. প্রোফাইল এপিআই (ভুল ঠিক করা হয়েছে)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
 def get_user_profile(request):
     user = request.user
-    
-    # প্রোফাইল থাকলে নিবে, না থাকলে নতুন একটা বানিয়ে নিবে (ক্রাশ করবে না)
     profile, created = Profile.objects.get_or_create(user=user)
     
-    image_url = request.build_absolute_uri(profile.image.url) if profile.image else None
-
     return Response({
-    'username': user.username,
-    'email': user.email,
-    'phone': profile.phone,  
-    'address': profile.address,
-    'image': request.build_absolute_uri(profile.image.url) if profile.image else None,
+        'username': user.username,
+        'email': user.email,
+        'phone': profile.phone_number, # এখানে ফোন_নম্বর হবে  
+        'address': profile.address,
+        'image': profile.image.url if profile.image else None,
     })
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_profile(request):
     user = request.user
+    profile = user.profile # প্রোফাইল অবজেক্ট নিতে হবে
 
     user.email = request.data.get('email', user.email)
-    user.phone = request.data.get('phone', user.phone)
-    user.address = request.data.get('address', user.address)
+    profile.phone_number = request.data.get('phone', profile.phone_number)
+    profile.address = request.data.get('address', profile.address)
 
     user.save()
+    profile.save()
 
-    return Response({"message": "updated"})
+    return Response({"message": "Profile updated successfully"})
 
-# ৫. প্রেসক্রিপশন আপলোড এপিআই
+# ৬. প্রেসক্রিপশন আপলোড
 @api_view(['POST'])
+@permission_classes([AllowAny]) # প্রয়োজনে প্রটেক্টেড করতে পারেন
 def upload_prescription(request):
     image = request.FILES.get('image')
     if image:
@@ -125,7 +130,7 @@ def upload_prescription(request):
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
     return Response({'error': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-
+# ৭. অর্ডার এপিআই
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def place_order(request):
@@ -135,15 +140,13 @@ def place_order(request):
         medicine_names=data.get('medicine_names'),
         total_price=data.get('total_price'),
         address=data.get('address'),
-        payment_method=data.get('payment_method'), # নতুন
-        transaction_id=data.get('transaction_id')  # নতুন
+        payment_method=data.get('payment_method'),
+        transaction_id=data.get('transaction_id')
     )
-    return Response({'message': 'Order Success'}, status=201)
+    return Response({'message': 'Order Success'}, status=status.HTTP_201_CREATED)
     
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_my_orders(request):
-    user = request.user
-    # ইউজারের সব অর্ডার লেটেস্ট ডেট অনুযায়ী ফিল্টার করা
-    orders = Order.objects.filter(user=user).order_by('-created_at').values()
+    orders = Order.objects.filter(user=request.user).order_by('-id').values() # created_at না থাকলে id দিয়ে সর্ট হবে
     return Response(list(orders))
