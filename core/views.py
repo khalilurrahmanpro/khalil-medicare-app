@@ -45,7 +45,7 @@ def get_medicines(request):
         })
     return Response(results)
 
-# ৩. ইউজার রেজিস্ট্রেশন
+# ৩. ইউজার রেজিস্ট্রেশন (সংশোধিত)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
@@ -54,13 +54,23 @@ def register_user(request):
     password = request.data.get('password')
     phone = request.data.get('phone')
 
-    if User.objects.filter(username=username).exists() or Profile.objects.filter(phone=phone).exists():
-        return Response({'error': 'Username or Phone already exists'}, status=status.HTTP_400_BAD_REQUEST)
+    # চেক করা হচ্ছে ইউজারনেম বা ফোন অলরেডি আছে কি না
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if Profile.objects.filter(phone=phone).exists():
+        return Response({'error': 'Phone number already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
+    # ইউজার তৈরি (এটি করলে সিগন্যাল অটোমেটিক প্রোফাইল তৈরি করে দিবে)
     user = User.objects.create_user(username=username, email=email, password=password)
-    Profile.objects.create(user=user, phone=phone)
+    
+    # যেহেতু সিগন্যাল অলরেডি প্রোফাইল তৈরি করেছে, তাই আমরা শুধু ফোন নাম্বারটা আপডেট করবো
+    profile = Profile.objects.get(user=user)
+    profile.phone = phone
+    profile.save()
+
     token, _ = Token.objects.get_or_create(user=user)
-    return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+    return Response({'token': token.key, 'message': 'Account created successfully'}, status=status.HTTP_201_CREATED)
 
 # ৪. লগইন এপিআই
 @api_view(['POST'])
