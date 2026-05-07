@@ -128,13 +128,11 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Cloudinary সেটিংস
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'da2ngwuq6',
-    'API_KEY': '613431222636525',
-    'API_SECRET': 'Xn9GyZup7zcsjwHWFuPxoxmXXpg'
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
-
 
 
 # ডিফল্ট স্টোরেজ সেটিংস
