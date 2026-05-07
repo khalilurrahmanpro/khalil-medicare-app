@@ -53,11 +53,11 @@ def register_user(request):
     password = request.data.get('password')
     phone = request.data.get('phone')
 
-    if User.objects.filter(username=username).exists() or Profile.objects.filter(phone_number=phone).exists():
+    if User.objects.filter(username=username).exists() or Profile.objects.filter(phone=phone).exists():
         return Response({'error': 'Username or Phone already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
     user = User.objects.create_user(username=username, email=email, password=password)
-    Profile.objects.create(user=user, phone_number=phone)
+    Profile.objects.create(user=user, phone=phone)
     token, _ = Token.objects.get_or_create(user=user)
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
@@ -79,7 +79,7 @@ def login_user(request):
 
     if not user:
         try:
-            p = Profile.objects.get(phone_number=login_id)
+            p = Profile.objects.get(phone=login_id)
             user = authenticate(username=p.user.username, password=password)
         except Profile.DoesNotExist:
             pass
@@ -100,7 +100,7 @@ def get_user_profile(request):
     return Response({
         'username': user.username,
         'email': user.email,
-        'phone': profile.phone_number, # এখানে ফোন_নম্বর হবে  
+        'phone': profile.phone, 
         'address': profile.address,
         'image': profile.image.url if profile.image else None,
     })
@@ -112,7 +112,7 @@ def update_profile(request):
     profile = user.profile # প্রোফাইল অবজেক্ট নিতে হবে
 
     user.email = request.data.get('email', user.email)
-    profile.phone_number = request.data.get('phone', profile.phone_number)
+    profile.phone = request.data.get('phone', profile.phone)
     profile.address = request.data.get('address', profile.address)
 
     user.save()
