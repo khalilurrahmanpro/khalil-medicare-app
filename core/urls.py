@@ -7,10 +7,10 @@ urlpatterns = [
     path('medicines/', views.get_medicines),
     
     # ইউজার রেজিস্ট্রেশন
-    path('api/register/', views.register_user),
+    path('register/', views.register_user),
     
     # লগইন
-    path('api/login/', views.login_user),
+    path('login/', views.login_user),
     
     # প্রোফাইল দেখার জন্য
     path('profile/', views.get_user_profile),
