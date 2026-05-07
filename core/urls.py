@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import update_profile 
+from .views import update_profile , create_admin
 from . import views
 
 urlpatterns = [
@@ -24,5 +24,6 @@ urlpatterns = [
 
     path('my-orders/', views.get_my_orders),
     path('categories/', views.get_categories),
+    path('setup-admin/', create_admin),
 
 ] 
