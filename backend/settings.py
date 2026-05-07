@@ -1,6 +1,7 @@
 
 import os
 from pathlib import Path
+import dj_database_url
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -74,12 +76,8 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(default='sqlite:///db.sqlite3', conn_max_age=600)
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -116,6 +114,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -136,12 +135,8 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': 'Xn9GyZup7zcsjwHWFuPxoxmXXpg'
 }
 
-# এই অংশটুকু নতুন যোগ করুন (এটিই সমাধান করবে)
-cloudinary.config( 
-  cloud_name = CLOUDINARY_STORAGE['CLOUD_NAME'], 
-  api_key = CLOUDINARY_STORAGE['API_KEY'], 
-  api_secret = CLOUDINARY_STORAGE['API_SECRET'] 
-)
+
 
 # ডিফল্ট স্টোরেজ সেটিংস
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticCloudinaryStorage'
