@@ -161,10 +161,3 @@ def place_order(request):
 def get_my_orders(request):
     orders = Order.objects.filter(user=request.user).order_by('-id').values() # created_at না থাকলে id দিয়ে সর্ট হবে
     return Response(list(orders))
-
-def create_admin(request):
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'mdkhalilurrahmanpro@gmail.com', 'Ah333***') # এখানে আপনার পছন্দের পাসওয়ার্ড দিন
-        return HttpResponse("Admin created successfully!")
-    else:
-        return HttpResponse("Admin already exists.")

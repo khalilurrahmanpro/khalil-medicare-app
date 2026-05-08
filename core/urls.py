@@ -24,6 +24,4 @@ urlpatterns = [
 
     path('my-orders/', views.get_my_orders),
     path('categories/', views.get_categories),
-    path('setup-admin/', create_admin),
-
 ] 
