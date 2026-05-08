@@ -179,3 +179,11 @@ def get_my_orders(request):
         })
     
     return Response(results)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def check_update(request):
+    return Response({
+        "version": "1.1.0", # বর্তমান ভার্সন
+        "url": "https://drive.google.com/file/d/1KwGJ2WLVFt7XG9Fsuv_texJxO7tFIbXQ/view?usp=sharing" # নতুন APK লিংক
+    })
