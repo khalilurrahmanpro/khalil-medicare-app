@@ -145,19 +145,24 @@ def upload_prescription(request):
     return Response({'error': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
 
 # ৭. অর্ডার এপিআই
+# views.py (Render এ আপডেট করুন)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def place_order(request):
     data = request.data
-    Order.objects.create(
-        user=request.user,
-        medicine_names=data.get('medicine_names'),
-        total_price=data.get('total_price'),
-        address=data.get('address'),
-        payment_method=data.get('payment_method'),
-        transaction_id=data.get('transaction_id')
-    )
-    return Response({'message': 'Order Success'}, status=status.HTTP_201_CREATED)
+    try:
+        Order.objects.create(
+            user=request.user,
+            medicine_names=data.get('medicine_names'),
+            total_price=data.get('total_price'),
+            address=data.get('address'),
+            payment_method=data.get('payment_method'),
+            transaction_id=data.get('transaction_id', '') # ফাঁকা থাকলেও এরর দিবে না
+        )
+        return Response({'message': 'Order Success'}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        # কোনো ভুল হলে এরর মেসেজ পাঠাবে
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
