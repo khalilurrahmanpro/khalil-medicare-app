@@ -108,12 +108,15 @@ def get_user_profile(request):
     user = request.user
     profile, created = Profile.objects.get_or_create(user=user)
     
+    # ছবির পূর্ণাঙ্গ ইউআরএল পাওয়ার জন্য
+    image_url = profile.image.url if profile.image else None
+    
     return Response({
         'username': user.username,
         'email': user.email,
         'phone': profile.phone, 
         'address': profile.address,
-        'image': profile.image.url if profile.image else None,
+        'image': image_url,
     })
 
 @api_view(['PUT'])
@@ -159,5 +162,20 @@ def place_order(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_my_orders(request):
-    orders = Order.objects.filter(user=request.user).order_by('-id').values() # created_at না থাকলে id দিয়ে সর্ট হবে
-    return Response(list(orders))
+    # ইউজারের সব অর্ডারগুলো নিচ্ছি
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    
+    results = []
+    for order in orders:
+        results.append({
+            'order_id': order.id,
+            'medicines': order.medicine_names, # এখানে সব ঔষধের নাম থাকবে
+            'total_price': float(order.total_price),
+            'address': order.address,
+            'status': order.status,
+            'payment': order.payment_method,
+            'date': order.created_at.strftime("%d %b %Y, %I:%M %p"), # তারিখটি সুন্দর দেখাবে
+            'transaction_id': order.transaction_id if order.transaction_id else "N/A"
+        })
+    
+    return Response(results)

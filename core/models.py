@@ -38,11 +38,13 @@ class Prescription(models.Model):
     
 
 # models.py ফাইলে গিয়ে আপনার প্রোফাইল মডেলটি এরকম করুন:
-class Profile(models.Model): # আপনার মডেলের নাম আলাদা হতে পারে
+# models.py এ গিয়ে Profile মডেলটি এমন করুন:
+class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15, blank=True, null=True)
-    address = models.TextField(blank=True, null=True)  # এই লাইনটি যোগ করুন
-    image = models.ImageField(upload_to='profiles/', default='profiles/default.png', blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    # ImageField এর বদলে CloudinaryField ব্যবহার করুন
+    image = CloudinaryField('image', blank=True, null=True) 
 
     def __str__(self):
         return self.user.username
