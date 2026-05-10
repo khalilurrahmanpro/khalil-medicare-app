@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from .serializers import OrderSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status, generics, permissions
 from django.http import HttpResponse
@@ -164,15 +165,14 @@ def place_order(request):
         # কোনো ভুল হলে এরর মেসেজ পাঠাবে
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
+# views.py (Django)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_my_orders(request):
-    # লগইন করা ইউজারের সব অর্ডার নিয়ে আসা হচ্ছে
+    # শুধুমাত্র লগইন করা ইউজারের অর্ডারগুলো ফিল্টার করা হচ্ছে
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
-    
-    return Response(results)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

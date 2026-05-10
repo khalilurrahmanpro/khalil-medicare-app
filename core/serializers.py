@@ -11,19 +11,8 @@ class PrescriptionSerializer(serializers.ModelSerializer):
         model = Prescription
         fields = '__all__'
 
-# --- নিচের এই অংশটুকু নতুন যোগ করুন ---
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        # এই ফিল্ডগুলোই Flutter অ্যাপে যাবে। 
-        # এখানে 'id' আছে, তাই এখন আর অ্যাপে #null দেখাবে না।
-        fields = [
-            'id', 
-            'medicine_names', 
-            'total_price', 
-            'address', 
-            'payment_method', 
-            'transaction_id', 
-            'status', 
-            'created_at'
-        ]
+        # 'id' অবশ্যই রাখবেন, তাহলে অ্যাপে #null দেখাবে না
+        fields = ['id', 'medicine_names', 'total_price', 'address', 'payment_method', 'status', 'created_at']
