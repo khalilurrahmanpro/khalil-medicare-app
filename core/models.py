@@ -76,8 +76,10 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'phone', 'address', 'image']
-
+ 
+# serializers.py (Django)
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
+        # এখানে 'id' অবশ্যই লিখবেন, নাহলে অ্যাপে #null দেখাবে
         fields = ['id', 'status', 'total_price', 'medicine_names', 'address', 'payment_method', 'created_at']
