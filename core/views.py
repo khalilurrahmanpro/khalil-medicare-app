@@ -164,7 +164,7 @@ def place_order(request):
         # কোনো ভুল হলে এরর মেসেজ পাঠাবে
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-@@api_view(['GET'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_my_orders(request):
     # লগইন করা ইউজারের সব অর্ডার নিয়ে আসা হচ্ছে
