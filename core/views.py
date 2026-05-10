@@ -164,24 +164,13 @@ def place_order(request):
         # কোনো ভুল হলে এরর মেসেজ পাঠাবে
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(['GET'])
+@@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_my_orders(request):
-    # ইউজারের সব অর্ডারগুলো নিচ্ছি
+    # লগইন করা ইউজারের সব অর্ডার নিয়ে আসা হচ্ছে
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    
-    results = []
-    for order in orders:
-        results.append({
-            'order_id': order.id,
-            'medicines': order.medicine_names, # এখানে সব ঔষধের নাম থাকবে
-            'total_price': float(order.total_price),
-            'address': order.address,
-            'status': order.status,
-            'payment': order.payment_method,
-            'date': order.created_at.strftime("%d %b %Y, %I:%M %p"), # তারিখটি সুন্দর দেখাবে
-            'transaction_id': order.transaction_id if order.transaction_id else "N/A"
-        })
+    serializer = OrderSerializer(orders, many=True)
+    return Response(serializer.data)
     
     return Response(results)
 

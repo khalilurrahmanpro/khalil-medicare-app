@@ -21,7 +21,6 @@ urlpatterns = [
     path('upload-prescription/', views.upload_prescription),
 
     path('place-order/', views.place_order), # নিশ্চিত করুন শেষে স্লাশ (/) আছে
-
     path('my-orders/', views.get_my_orders),
     path('categories/', views.get_categories),
     path('check-update/', views.check_update)
