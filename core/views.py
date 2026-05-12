@@ -4,7 +4,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .serializers import OrderSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from .models import Order
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework import status, generics, permissions
 from django.http import HttpResponse
 import os
@@ -181,3 +182,10 @@ def check_update(request):
         "version": "1.1.0", # বর্তমান ভার্সন
         "url": "https://drive.google.com/file/d/1KwGJ2WLVFt7XG9Fsuv_texJxO7tFIbXQ/view?usp=sharing" # নতুন APK লিংক
     })
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def admin_orders(request):
+    orders = Order.objects.all().order_by('-id')
+    serializer = OrderSerializer(orders, many=True)
+    return Response(serializer.data)
