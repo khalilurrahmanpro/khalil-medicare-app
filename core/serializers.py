@@ -15,4 +15,4 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         # 'id' অবশ্যই রাখবেন, তাহলে অ্যাপে #null দেখাবে না
-        fields = ['id', 'medicine_names', 'total_price', 'address', 'payment_method', 'status', 'created_at']
+        fields = ['id', 'name', 'price', 'image', 'stock_quantity', 'box_discount', 'strip_discount', 'strips_per_box'] 

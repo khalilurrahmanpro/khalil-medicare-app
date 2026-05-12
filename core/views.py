@@ -9,20 +9,14 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework import status, generics, permissions
 from django.http import HttpResponse
 import os
-
-# আপনার মডেল এবং সিরিয়ালাইজার ইমপোর্ট করুন
 from .models import Medicine, Prescription, Profile, Order, Category
-# MedicineSerializer যদি আলাদা ফাইলে থাকে তবে সেখান থেকে ইমপোর্ট করুন, 
-# নাহলে নিচে MedicineListView এর জন্য এটি লাগবে।
 
-# ১. ক্যাটাগরি এপিআই (সবার জন্য উন্মুক্ত)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_categories(request):
     cats = Category.objects.all().values()
     return Response(list(cats))
 
-# ২. মেডিসিন এপিআই (সাজানো এবং ছবি সমস্যার সমাধানসহ)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_medicines(request):
@@ -31,14 +25,13 @@ def get_medicines(request):
     results = []
     
     for med in medicines:
-        # Cloudinary এর ইমেজ ইউআরএল নিজেই পূর্ণাঙ্গ থাকে, তাই build_absolute_uri দরকার নেই
         image_url = med.image.url if med.image else None
         
         results.append({
             'id': med.id, 
             'name': med.name, 
             'company': med.company,
-            'price': float(med.price_per_box), # নিশ্চিত করার জন্য float করা হলো
+            'price': float(med.price_per_box),
             'strips_per_box': med.strips_per_box,
             'box_discount': med.box_discount_percent,
             'strip_discount': med.strip_discount_percent,
@@ -46,8 +39,6 @@ def get_medicines(request):
             'image': image_url,
         })
     return Response(results)
-
-# ৩. ইউজার রেজিস্ট্রেশন (সংশোধিত)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
@@ -56,17 +47,12 @@ def register_user(request):
     password = request.data.get('password')
     phone = request.data.get('phone')
 
-    # চেক করা হচ্ছে ইউজারনেম বা ফোন অলরেডি আছে কি না
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
     
     if Profile.objects.filter(phone=phone).exists():
         return Response({'error': 'Phone number already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # ইউজার তৈরি (এটি করলে সিগন্যাল অটোমেটিক প্রোফাইল তৈরি করে দিবে)
     user = User.objects.create_user(username=username, email=email, password=password)
-    
-    # যেহেতু সিগন্যাল অলরেডি প্রোফাইল তৈরি করেছে, তাই আমরা শুধু ফোন নাম্বারটা আপডেট করবো
     profile = Profile.objects.get(user=user)
     profile.phone = phone
     profile.save()
@@ -74,7 +60,6 @@ def register_user(request):
     token, _ = Token.objects.get_or_create(user=user)
     return Response({'token': token.key, 'message': 'Account created successfully'}, status=status.HTTP_201_CREATED)
 
-# ৪. লগইন এপিআই
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):
@@ -103,14 +88,12 @@ def login_user(request):
     else:
         return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-# ৫. প্রোফাইল এপিআই (ভুল ঠিক করা হয়েছে)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
 def get_user_profile(request):
     user = request.user
     profile, created = Profile.objects.get_or_create(user=user)
     
-    # ছবির পূর্ণাঙ্গ ইউআরএল পাওয়ার জন্য
     image_url = profile.image.url if profile.image else None
     
     return Response({
@@ -125,7 +108,7 @@ def get_user_profile(request):
 @permission_classes([IsAuthenticated])
 def update_profile(request):
     user = request.user
-    profile = user.profile # প্রোফাইল অবজেক্ট নিতে হবে
+    profile = user.profile 
 
     user.email = request.data.get('email', user.email)
     profile.phone = request.data.get('phone', profile.phone)
@@ -136,9 +119,8 @@ def update_profile(request):
 
     return Response({"message": "Profile updated successfully"})
 
-# ৬. প্রেসক্রিপশন আপলোড
 @api_view(['POST'])
-@permission_classes([AllowAny]) # প্রয়োজনে প্রটেক্টেড করতে পারেন
+@permission_classes([AllowAny]) 
 def upload_prescription(request):
     image = request.FILES.get('image')
     if image:
@@ -146,31 +128,46 @@ def upload_prescription(request):
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
     return Response({'error': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-# ৭. অর্ডার এপিআই
-# views.py (Render এ আপডেট করুন)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def place_order(request):
     data = request.data
+    cart_items = data.get('items') 
+
     try:
-        Order.objects.create(
-            user=request.user,
-            medicine_names=data.get('medicine_names'),
-            total_price=data.get('total_price'),
-            address=data.get('address'),
-            payment_method=data.get('payment_method'),
-            transaction_id=data.get('transaction_id', '') # ফাঁকা থাকলেও এরর দিবে না
-        )
-        return Response({'message': 'Order Success'}, status=status.HTTP_201_CREATED)
+        with transaction.atomic():
+            for item in cart_items:
+                medicine = Medicine.objects.get(name=item['name'])
+                
+                if medicine.stock_quantity < item['quantity']:
+                    return Response(
+                        {'error': f"{medicine.name} পর্যাপ্ত স্টকে নেই! মাত্র {medicine.stock_quantity} টি আছে।"}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                medicine.stock_quantity -= item['quantity']
+                medicine.save()
+
+            Order.objects.create(
+                user=request.user,
+                medicine_names=data.get('medicine_names'),
+                total_price=data.get('total_price'),
+                address=data.get('address'),
+                payment_method=data.get('payment_method'),
+                transaction_id=data.get('transaction_id', '') 
+            )
+            
+            return Response({'message': 'Order Success'}, status=status.HTTP_201_CREATED)
+
+    except Medicine.DoesNotExist:
+        return Response({'error': 'ওষুধটি ডাটাবেজে পাওয়া যায়নি'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        # কোনো ভুল হলে এরর মেসেজ পাঠাবে
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-# views.py (Django)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_my_orders(request):
-    # শুধুমাত্র লগইন করা ইউজারের অর্ডারগুলো ফিল্টার করা হচ্ছে
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
@@ -179,8 +176,8 @@ def get_my_orders(request):
 @permission_classes([AllowAny])
 def check_update(request):
     return Response({
-        "version": "1.1.0", # বর্তমান ভার্সন
-        "url": "https://drive.google.com/file/d/1KwGJ2WLVFt7XG9Fsuv_texJxO7tFIbXQ/view?usp=sharing" # নতুন APK লিংক
+        "version": "1.1.0", 
+        "url": "https://drive.google.com/file/d/1KwGJ2WLVFt7XG9Fsuv_texJxO7tFIbXQ/view?usp=sharing" 
     })
 
 @api_view(['GET'])

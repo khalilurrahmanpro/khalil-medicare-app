@@ -18,12 +18,41 @@ class Medicine(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    # ঔষধের ছবির জন্য নতুন ফিল্ড
     image = CloudinaryField('image', blank=True, null=True)
-    price_per_box = models.DecimalField(max_digits=10, decimal_places=2) # বক্সের দাম
-    strips_per_box = models.IntegerField(default=10) # এক বক্সে কয়টি পাতা থাকে
-    box_discount_percent = models.FloatField(default=0.0)  # বক্সের জন্য ছাড়
-    strip_discount_percent = models.FloatField(default=0.0) # পাতার জন্য ছাড়
+    price_per_box = models.DecimalField(max_digits=10, decimal_places=2)
+    strips_per_box = models.IntegerField(default=10) 
+    box_discount_percent = models.FloatField(default=0.0)  
+    strip_discount_percent = models.FloatField(default=0.0) 
+    min_stock_level = models.PositiveIntegerField(default=5) 
+    stock_quantity = models.IntegerField(default=0)
+
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    image = CloudinaryField('image', blank=True, null=True)
+
+    price_per_box = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    strips_per_box = models.IntegerField(default=10)
+
+    box_discount_percent = models.FloatField(default=0.0)
+
+    strip_discount_percent = models.FloatField(default=0.0)
+
+    stock_quantity = models.PositiveIntegerField(default=0)
+
+    min_stock_level = models.PositiveIntegerField(default=5)
+
+    @property
+    def is_low_stock(self):
+        return self.stock_quantity <= 2
 
     def __str__(self):
         return self.name
