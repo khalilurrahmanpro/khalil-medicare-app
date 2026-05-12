@@ -21,7 +21,7 @@ urlpatterns = [
 
     path('categories/', views.get_categories),
 
-    path('check-update/', views.check_update)
-    
+    path('check-update/', views.check_update),
+
     path('admin-orders/', views.admin_orders),
 ]
