@@ -4,6 +4,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .serializers import OrderSerializer
+from .serializers import MedicineSerializer
+from django.db import transaction
 from .models import Order
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework import status, generics, permissions
@@ -186,3 +188,22 @@ def admin_orders(request):
     orders = Order.objects.all().order_by('-id')
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
+
+
+@api_view(['PATCH', 'PUT'])
+@permission_classes([AllowAny]) # আপাতত এটি AllowAny দিন যাতে টেস্ট করা যায়
+def update_stock(request, pk):
+    try:
+        medicine = Medicine.objects.get(id=pk)
+        new_stock = request.data.get('stock_quantity')
+        
+        if new_stock is not None:
+            medicine.stock_quantity = int(new_stock) # নিশ্চিত করুন এটি নাম্বার
+            medicine.save()
+            return Response({"message": "Stock updated", "stock_quantity": medicine.stock_quantity}, status=200)
+        return Response({"error": "No stock data provided"}, status=400)
+    except Medicine.DoesNotExist:
+        return Response({"error": "Medicine not found"}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+   

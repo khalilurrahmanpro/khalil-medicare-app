@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import update_profile
 from . import views
+from .views import update_profile, update_stock
 
 urlpatterns = [
     path('medicines/', views.get_medicines),
@@ -24,4 +24,5 @@ urlpatterns = [
     path('check-update/', views.check_update),
 
     path('admin-orders/', views.admin_orders),
+    path('medicine/<int:pk>/update-stock/', update_stock),
 ]
