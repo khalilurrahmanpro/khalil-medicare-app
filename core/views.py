@@ -195,7 +195,7 @@ def admin_orders(request):
 
 
 @api_view(['PATCH', 'PUT'])
-@permission_classes([IsAdminUser]) # আপাতত এটি AllowAny দিন যাতে টেস্ট করা যায়
+@permission_classes([AllowAny]) # আপাতত এটি AllowAny দিন যাতে টেস্ট করা যায়
 def update_stock(request, pk):
     try:
         medicine = Medicine.objects.get(id=pk)
