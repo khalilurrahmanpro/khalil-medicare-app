@@ -41,7 +41,7 @@ def get_medicines(request):
             'strip_discount': med.strip_discount_percent,
             'description': med.description,
             'image': image_url,
-            'stock_quantity': med.stock_quantity, 
+            'stock_quantity': med.stock_quantity, # <--- এই লাইনটি অবশ্যই যোগ করুন
         })
     return Response(results)
 
@@ -195,7 +195,7 @@ def admin_orders(request):
 
 
 @api_view(['PATCH', 'PUT'])
-@permission_classes([AllowAny]) # আপাতত এটি AllowAny দিন যাতে টেস্ট করা যায়
+@permission_classes([IsAdminUser]) # আপাতত এটি AllowAny দিন যাতে টেস্ট করা যায়
 def update_stock(request, pk):
     try:
         medicine = Medicine.objects.get(id=pk)
