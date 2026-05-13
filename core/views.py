@@ -12,12 +12,14 @@ from rest_framework import status, generics, permissions
 from django.http import HttpResponse
 import os
 from .models import Medicine, Prescription, Profile, Order, Category
+from .models import Medicine 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_categories(request):
     cats = Category.objects.all().values()
     return Response(list(cats))
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -39,8 +41,10 @@ def get_medicines(request):
             'strip_discount': med.strip_discount_percent,
             'description': med.description,
             'image': image_url,
+            'stock_quantity': med.stock_quantity, 
         })
     return Response(results)
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
