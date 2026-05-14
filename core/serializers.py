@@ -24,8 +24,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'is_staff', 'is_superuser']
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        # এখানে অবশ্যই is_staff ফিল্ডটি থাকতে হবে
-        fields = ['id', 'username', 'email', 'is_staff', 'is_superuser']
+        # এখানে অবশ্যই 'is_staff' যোগ করুন
+        fields = ['id', 'username', 'email', 'phone', 'address', 'image', 'is_staff']

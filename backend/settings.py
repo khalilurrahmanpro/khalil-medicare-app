@@ -20,7 +20,7 @@ SECRET_KEY = 'django-insecure-_l@_qj-1kfa54odv(1yw*q^emzo8tedx!ovhk78ri$qu_vrv2m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['khalil-medicare-app-backend.onrender.com', 'localhost', '127.0.0.1', '*']
 
 # Application definition
 
