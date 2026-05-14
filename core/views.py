@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework import status
 import os
 from .models import Medicine, Prescription, Profile, Order, Category
+from .serializers import OrderSerializer # নিশ্চিত করুন আপনার একটি OrderSerializer আছে
 from .serializers import UserSerializer 
 
 @api_view(['GET'])
@@ -170,9 +171,10 @@ def place_order(request):
     
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated]) # শুধু লগইন করা ইউজার দেখতে পাবে
 def get_my_orders(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    # request.user দিয়ে ফিল্টার করা হচ্ছে যাতে শুধু ওই ইউজারের অর্ডার আসে
+    orders = Order.objects.filter(user=request.user).order_by('-id')
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
 
