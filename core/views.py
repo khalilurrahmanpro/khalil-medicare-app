@@ -12,7 +12,6 @@ import os
 from .models import Medicine, Prescription, Profile, Order, Category
 from .serializers import OrderSerializer # নিশ্চিত করুন আপনার একটি OrderSerializer আছে
 from .serializers import UserSerializer 
-
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_categories(request):
@@ -171,12 +170,20 @@ def place_order(request):
     
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) # শুধু লগইন করা ইউজার দেখতে পাবে
+@permission_classes([IsAuthenticated])
 def get_my_orders(request):
-    # request.user দিয়ে ফিল্টার করা হচ্ছে যাতে শুধু ওই ইউজারের অর্ডার আসে
-    orders = Order.objects.filter(user=request.user).order_by('-id')
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
+    try:
+        # বর্তমান ইউজারের সব অর্ডার নিয়ে আসা
+        orders = Order.objects.filter(user=request.user).order_by('-id')
+        
+        # এখানে অবশ্যই সঠিক সিরিয়ালাইজার (OrderSerializer) ব্যবহার করতে হবে
+        serializer = OrderSerializer(orders, many=True)
+        
+        return Response(serializer.data)
+    except Exception as e:
+        # এরর হলে কনসোলে দেখাবে কেন ৫০০ হচ্ছে
+        print(f"Order Fetch Error: {e}")
+        return Response({"error": "Something went wrong"}, status=500)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
