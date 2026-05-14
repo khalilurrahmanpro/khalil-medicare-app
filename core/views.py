@@ -4,15 +4,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .serializers import OrderSerializer
-from .serializers import MedicineSerializer
 from django.db import transaction
 from .models import Order
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
-from rest_framework import status, generics, permissions
-from django.http import HttpResponse
+from rest_framework import status
 import os
 from .models import Medicine, Prescription, Profile, Order, Category
-from .models import Medicine 
+from .serializers import UserSerializer 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -210,4 +208,11 @@ def update_stock(request, pk):
         return Response({"error": "Medicine not found"}, status=404)
     except Exception as e:
         return Response({"error": str(e)}, status=400)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profile_view(request):
+    # বর্তমানে যে লগইন করে আছে (request.user), তার ডাটা পাঠাবে
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
    
