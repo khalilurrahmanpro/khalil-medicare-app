@@ -13,6 +13,8 @@ class PrescriptionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class OrderSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.username')
+    phone = serializers.ReadOnlyField(source='user.phone') 
     class Meta:
         model = Order
         fields = ['id', 'medicine_names', 'total_price', 'address', 'status', 'payment_method', 'created_at']
