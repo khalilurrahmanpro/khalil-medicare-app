@@ -24,5 +24,10 @@ urlpatterns = [
     path('check-update/', views.check_update),
 
     path('admin-orders/', views.admin_orders),
+
+    path('admin-orders/<int:pk>/', views.update_order_status),
+
     path('medicine/<int:pk>/update-stock/', update_stock),
+    
+    path('admin-orders/<int:pk>/', views.update_order_status),
 ]

@@ -17,7 +17,7 @@ class OrderSerializer(serializers.ModelSerializer):
     phone = serializers.ReadOnlyField(source='user.phone') 
     class Meta:
         model = Order
-        fields = ['id', 'medicine_names', 'total_price', 'address', 'status', 'payment_method', 'created_at']
+        fields = ['id', 'medicine_names', 'total_price', 'phone', 'address', 'status', 'payment_method', 'created_at']
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:

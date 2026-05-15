@@ -230,4 +230,34 @@ def profile_view(request):
     # বর্তমানে যে লগইন করে আছে (request.user), তার ডাটা পাঠাবে
     serializer = UserProfileSerializer(request.user)
     return Response(serializer.data)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_order_status(request, pk):
+
+    # শুধু admin access
+    if not request.user.is_staff:
+        return Response(
+            {"error": "Unauthorized"},
+            status=403
+        )
+
+    try:
+        order = Order.objects.get(id=pk)
+
+    except Order.DoesNotExist:
+        return Response(
+            {"error": "Order not found"},
+            status=404
+        )
+
+    status_value = request.data.get('status')
+
+    if status_value:
+        order.status = status_value
+        order.save()
+
+    return Response({
+        "message": "Status Updated Successfully"
+    })
    
