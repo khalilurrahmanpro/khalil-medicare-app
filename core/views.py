@@ -193,12 +193,18 @@ def check_update(request):
         "url": "https://drive.google.com/file/d/1KwGJ2WLVFt7XG9Fsuv_texJxO7tFIbXQ/view?usp=sharing" 
     })
 
+# ব্যাকএন্ডের views.py তে এটি আপডেট করুন
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAdminUser])  # শুধুমাত্র এডমিনরা ঢুকতে পারবে
 def admin_orders(request):
-    orders = Order.objects.all().order_by('-id')
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
+    try:
+        # সব কাস্টমারের অর্ডার নিয়ে আসা
+        orders = Order.objects.all().order_by('-id') 
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        # যদি কোনো ভুল হয়, ক্র্যাশ না করে এরর মেসেজ দিবে (যাতে ৫‌০০ না আসে)
+        return Response({"error": str(e)}, status=400)
 
 
 @api_view(['PATCH', 'PUT'])
