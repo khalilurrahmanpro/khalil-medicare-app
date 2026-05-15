@@ -11,7 +11,7 @@ from rest_framework import status
 import os
 from .models import Medicine, Prescription, Profile, Order, Category
 from .serializers import OrderSerializer # নিশ্চিত করুন আপনার একটি OrderSerializer আছে
-from .serializers import UserSerializer 
+from .serializers import UserProfileSerializer
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_categories(request):
@@ -228,6 +228,6 @@ def update_stock(request, pk):
 @permission_classes([IsAuthenticated])
 def profile_view(request):
     # বর্তমানে যে লগইন করে আছে (request.user), তার ডাটা পাঠাবে
-    serializer = UserSerializer(request.user)
+    serializer = UserProfileSerializer(request.user)
     return Response(serializer.data)
    
