@@ -18,6 +18,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'medicine_names', 'total_price', 'phone', 'address', 'status', 'payment_method', 'created_at']
+        fields = '__all__'
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
