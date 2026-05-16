@@ -207,6 +207,41 @@ def get_user_profile(request):
         'image': image_url,
     })
 
+# --- PROFILE: প্রোফাইল আপডেট করার জন্য ---
+@api_view(['PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    user = request.user
+    # প্রোফাইল মডেলটি নিশ্চিত করুন (ইউজারের সাথে ওয়ান-টু-ওয়ান রিলেশন থাকতে হবে)
+    profile, created = Profile.objects.get_or_create(user=user)
+
+    user.email = request.data.get('email', user.email)
+    profile.phone = request.data.get('phone', profile.phone)
+    profile.address = request.data.get('address', profile.address)
+
+    user.save()
+    profile.save()
+
+    return Response({"message": "Profile updated successfully"})
+
+# --- STOCK: এডমিন কর্তৃক স্টক আপডেট করার জন্য ---
+@api_view(['PATCH', 'PUT'])
+@permission_classes([IsAdminUser])
+def update_stock(request, pk):
+    try:
+        medicine = Medicine.objects.get(id=pk)
+        new_stock = request.data.get('stock_quantity')
+        
+        if new_stock is not None:
+            medicine.stock_quantity = int(new_stock)
+            medicine.save()
+            return Response({"message": "Stock updated", "stock_quantity": medicine.stock_quantity})
+        return Response({"error": "No stock data provided"}, status=400)
+    except Medicine.DoesNotExist:
+        return Response({"error": "Medicine not found"}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
 # --- APP UPDATE: আপডেট চেক ---
 @api_view(['GET'])
 @permission_classes([AllowAny])
