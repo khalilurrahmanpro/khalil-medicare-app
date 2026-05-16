@@ -105,11 +105,11 @@ def login_user(request):
 @permission_classes([IsAuthenticated])
 def place_order(request):
     data = request.data
-    cart_items = data.get('items') # এটি একটি লিস্ট হতে হবে
+    cart_items = data.get('items') 
     
     try:  
         with transaction.atomic():
-            # ১. মেইন অর্ডার তৈরি
+            # ১. মেইন অর্ডার তৈরি করুন
             order = Order.objects.create(
                 user=request.user,
                 medicine_names=data.get('medicine_names'),
@@ -119,37 +119,36 @@ def place_order(request):
                 transaction_id=data.get('transaction_id', '') 
             )
 
-            # ২. লুপ চালিয়ে আইটেমগুলো OrderItem টেবিলে সেভ করা
+            # ২. লুপ চালিয়ে প্রতিটি আইটেম সেভ করা
             for item in cart_items:
-    # ... আগের কোড ...
-                    OrderItem.objects.create(
-                    order=order,
-                    medicine_name=item['name'],
-                    quantity=item['quantity'],
-                    price=item['price'],
-                    unit_type=item.get('unit_type', 'Pcs') # <--- এটি নিশ্চিত করুন যেন ফ্রন্টএন্ড থেকে আসে
-                       )
-                
-                    if medicine.stock_quantity < item['quantity']:
-                     raise Exception(f"{medicine.name} পর্যাপ্ত স্টকে নেই!")
+                # এখানে খেয়াল করুন: Medicine (বড় হাতের M) হলো মডেলের নাম
+                # আর medicine_instance হলো আমাদের ভেরিয়েবল
+                try:
+                    medicine_instance = Medicine.objects.get(name=item['name'])
+                    
+                    # স্টক চেক
+                    if medicine_instance.stock_quantity < item['quantity']:
+                        raise Exception(f"{medicine_instance.name} পর্যাপ্ত স্টকে নেই!")
 
-                # স্টক আপডেট
-                    medicine.stock_quantity -= item['quantity']
-                    medicine.save()
+                    # স্টক কমানো
+                    medicine_instance.stock_quantity -= item['quantity']
+                    medicine_instance.save()
 
-                # আইটেম ডাটাবেজে সেভ (এটি ইনভয়েস টেবিল ঠিক করবে)
+                    # অর্ডারের আইটেম সেভ করা
                     OrderItem.objects.create(
-                    order=order,
-                    medicine_name=item['name'],
-                    quantity=item['quantity'],
-                    price=item['price'], # নিশ্চিত করুন ফ্রন্টএন্ড থেকে price পাঠানো হচ্ছে
-                     )
+                        order=order,
+                        medicine_name=item['name'],
+                        quantity=item['quantity'],
+                        price=item['price'],
+                        unit_type=item.get('unit_type', 'Pcs') # ফ্রন্টএন্ড থেকে বক্স/পাতা আসা নিশ্চিত করুন
+                    )
+                except Medicine.DoesNotExist:
+                    raise Exception(f"ওষুধ '{item['name']}' ডাটাবেজে পাওয়া যায়নি!")
             
             return Response({'message': 'Order Success'}, status=status.HTTP_201_CREATED)
-    
-    except Medicine.DoesNotExist:
-        return Response({'error': 'ওষুধটি ডাটাবেজে পাওয়া যায়নি'}, status=status.HTTP_404_NOT_FOUND)
+
     except Exception as e:
+        # কোনো এরর হলে এখানে আসবে
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # --- ORDER: কাস্টমার নিজের অর্ডার দেখবে ---
