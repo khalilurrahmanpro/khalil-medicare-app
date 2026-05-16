@@ -95,10 +95,12 @@ class Order(models.Model):
     medicine_names = models.TextField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     address = models.TextField()
-    # নতুন পেমেন্ট ফিল্ডসমূহ
     payment_method = models.CharField(max_length=20, default="COD") # COD, bKash, Nagad
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=20, default="Pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    phone = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
 
 class OrderItem(models.Model):
@@ -106,6 +108,10 @@ class OrderItem(models.Model):
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    medicine_name = models.CharField(max_length=255)
+    quantity = models.IntegerField(default=1)
+    unit_type = models.CharField(max_length=50, default='Pcs') # Box/Strip/Pcs
+    price = models.DecimalField(max_digits=10, decimal_places=2) # প্রতিটির দাম
 
     @property
     def subtotal(self):
@@ -125,3 +131,6 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         # এখানে 'id' অবশ্যই লিখবেন, নাহলে অ্যাপে #null দেখাবে
         fields = ['id', 'status', 'total_price', 'medicine_names', 'address', 'payment_method', 'created_at']
+
+from django.db import models
+from django.contrib.auth.models import User
