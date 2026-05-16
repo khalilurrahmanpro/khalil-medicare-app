@@ -242,6 +242,21 @@ def update_stock(request, pk):
     except Exception as e:
         return Response({"error": str(e)}, status=400)
 
+
+# --- PRESCRIPTION: প্রেসক্রিপশন ইমেজ আপলোড করার জন্য ---
+@api_view(['POST'])
+@permission_classes([AllowAny]) # প্রেসক্রিপশন যে কেউ আপলোড করতে পারবে
+def upload_prescription(request):
+    try:
+        image = request.FILES.get('image')
+        if image:
+            # Prescription মডেলটি নিশ্চিত করুন আপনার models.py তে আছে
+            Prescription.objects.create(image=image)
+            return Response({'status': 'success', 'message': 'Prescription uploaded successfully'}, status=status.HTTP_201_CREATED)
+        return Response({'error': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 # --- APP UPDATE: আপডেট চেক ---
 @api_view(['GET'])
 @permission_classes([AllowAny])
