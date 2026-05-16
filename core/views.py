@@ -121,22 +121,29 @@ def place_order(request):
 
             # ২. লুপ চালিয়ে আইটেমগুলো OrderItem টেবিলে সেভ করা
             for item in cart_items:
-                medicine = Medicine.objects.get(name=item['name'])
+    # ... আগের কোড ...
+                    OrderItem.objects.create(
+                    order=order,
+                    medicine_name=item['name'],
+                    quantity=item['quantity'],
+                    price=item['price'],
+                    unit_type=item.get('unit_type', 'Pcs') # <--- এটি নিশ্চিত করুন যেন ফ্রন্টএন্ড থেকে আসে
+                       )
                 
-                if medicine.stock_quantity < item['quantity']:
-                    raise Exception(f"{medicine.name} পর্যাপ্ত স্টকে নেই!")
+                    if medicine.stock_quantity < item['quantity']:
+                     raise Exception(f"{medicine.name} পর্যাপ্ত স্টকে নেই!")
 
                 # স্টক আপডেট
-                medicine.stock_quantity -= item['quantity']
-                medicine.save()
+                    medicine.stock_quantity -= item['quantity']
+                    medicine.save()
 
                 # আইটেম ডাটাবেজে সেভ (এটি ইনভয়েস টেবিল ঠিক করবে)
-                OrderItem.objects.create(
+                    OrderItem.objects.create(
                     order=order,
                     medicine_name=item['name'],
                     quantity=item['quantity'],
                     price=item['price'], # নিশ্চিত করুন ফ্রন্টএন্ড থেকে price পাঠানো হচ্ছে
-                )
+                     )
             
             return Response({'message': 'Order Success'}, status=status.HTTP_201_CREATED)
     
