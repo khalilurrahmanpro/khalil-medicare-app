@@ -190,10 +190,11 @@ def update_stock(request, pk):
     
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def get_user_profile(request):
+    # বর্তমানে যে লগইন করে আছে (request.user), তার ডাটা পাঠাবে
     user = request.user
-    # Profile মডেল থেকে ডাটা আনা (Profile মডেলটি ইমপোর্ট করা থাকতে হবে)
+    # প্রোফাইল মডেল থেকে ডাটা আনা (Profile মডেলটি ইমপোর্ট করা থাকতে হবে)
     profile, created = Profile.objects.get_or_create(user=user)
     
     image_url = profile.image.url if profile.image else None
