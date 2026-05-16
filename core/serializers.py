@@ -11,8 +11,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ['id', 'medicine_name', 'unit_price', 'unit_type', 'quantity', 'discount']
 
+
 class OrderSerializer(serializers.ModelSerializer):
-    username = serializers.ReadOnlyField(source='user.username')
+    username = serializers.ReadOnlyField(source='user.username', default='Customer')
     phone = serializers.ReadOnlyField(source='user.first_name') 
     items = OrderItemSerializer(many=True, read_only=True)
 
