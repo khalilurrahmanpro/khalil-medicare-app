@@ -101,6 +101,11 @@ class Order(models.Model):
     status = models.CharField(max_length=20, default="Pending")
     created_at = models.DateTimeField(auto_now_add=True)
 
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
