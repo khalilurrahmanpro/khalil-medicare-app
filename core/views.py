@@ -10,17 +10,18 @@ from rest_framework import status, viewsets
 from .models import Medicine, Prescription, Profile, Order, Category, OrderItem
 from .serializers import OrderSerializer, UserProfileSerializer
 
-# --- ADMIN: সব অর্ডার দেখার জন্য ---
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def admin_orders(request):
     try:
-        # prefetch_related('items') যোগ করায় ইনভয়েসের ডাটা আর খালি আসবে না
-        orders = Order.objects.all().prefetch_related('items').order_by('-id') 
+        # সব অর্ডার নিয়ে আসা
+        orders = Order.objects.all().prefetch_related('items').order_by('-id')
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        # ৪‌০০ এরর কেন হচ্ছে তা দেখতে print(e) করুন
+        print(f"Admin Order Error: {e}")
+        return Response({"error": str(e)}, status=400)
 
 # --- CATEGORY: ক্যাটাগরি লিস্ট ---
 @api_view(['GET'])
@@ -149,11 +150,13 @@ def place_order(request):
 @permission_classes([IsAuthenticated])
 def get_my_orders(request):
     try:
+        # prefetch_related ব্যবহার করা হয়েছে
         orders = Order.objects.filter(user=request.user).prefetch_related('items').order_by('-id')
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(f"Error: {e}")
+        return Response({"error": "Failed to load orders"}, status=500)
 
 # --- ADMIN: অর্ডার স্ট্যাটাস আপডেট ---
 @api_view(['PATCH'])

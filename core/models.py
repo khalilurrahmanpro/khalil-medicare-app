@@ -104,14 +104,12 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class OrderItem(models.Model):
+    # এই related_name='items' না থাকলে ৫০০ এরর আসবে
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     medicine_name = models.CharField(max_length=255)
     quantity = models.IntegerField(default=1)
-    unit_type = models.CharField(max_length=50, default='Pcs') # Box/Strip/Pcs
-    price = models.DecimalField(max_digits=10, decimal_places=2) # প্রতিটির দাম
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    unit_type = models.CharField(max_length=50, default='Pcs')
 
     @property
     def subtotal(self):
