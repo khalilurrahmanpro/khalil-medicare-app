@@ -104,7 +104,15 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
+    quantity = models.PositiveIntegerField(default=1)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+
+    @property
+    def subtotal(self):
+        price = self.medicine.price
+        total = price * self.quantity
+        discount_amount = (total * self.discount) / 100
+        return total - discount_amount
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
