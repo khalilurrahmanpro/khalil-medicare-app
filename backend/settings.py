@@ -125,11 +125,12 @@ REST_FRAMEWORK = {
     ],
 }
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-AWS_ACCESS_KEY_ID = os.environ.get('SUPABASE_ANON_KEY')
-AWS_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
+AWS_ACCESS_KEY_ID = os.environ.get('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqY3Jnb3V4YWFta2h1bW5ua2txIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NjA3NDksImV4cCI6MjA5NzIzNjc0OX0.ZL1CNdJiFFbPyTLg-DscMPHJ_B5-pgbIicudFYZdRd0')
+AWS_SECRET_ACCESS_KEY = os.environ.get('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqY3Jnb3V4YWFta2h1bW5ua2txIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTY2MDc0OSwiZXhwIjoyMDk3MjM2NzQ5fQ.oMq7-pMlFiV24dXjYPFm7v3p5cl3Q_GjyfgYB3aT9qA')
 AWS_STORAGE_BUCKET_NAME = 'medicine-images' 
-AWS_S3_ENDPOINT_URL = f"https://{os.environ.get('SUPABASE_PROJECT_ID')}.supabase.co/storage/v1/s3"
+AWS_S3_ENDPOINT_URL = f"https://{os.environ.get('ajcrgouxaamkhumnnkkq')}.supabase.co/storage/v1/s3"
 AWS_S3_REGION_NAME = 'ap-northeast-2' 
+AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = 'public-read' 
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
