@@ -2,9 +2,6 @@
 import os
 from pathlib import Path
 import dj_database_url
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,14 +22,12 @@ ALLOWED_HOSTS = ['khalil-medicare-app-backend.onrender.com', 'localhost', '127.0
 # Application definition
 
 INSTALLED_APPS = [
-    'cloudinary_storage', # ১ নম্বরে
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles', # staticfiles এর উপরেই cloudinary_storage থাকতে হবে
-    'cloudinary',
+    'django.contrib.staticfiles',
     'core',
     'rest_framework',
     'rest_framework.authtoken',
@@ -130,13 +125,11 @@ REST_FRAMEWORK = {
     ],
 }
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-}
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-
-# ডিফল্ট স্টোরেজ সেটিংস
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticCloudinaryStorage'
+AWS_ACCESS_KEY_ID = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqY3Jnb3V4YWFta2h1bW5ua2txIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NjA3NDksImV4cCI6MjA5NzIzNjc0OX0.ZL1CNdJiFFbPyTLg-DscMPHJ_B5-pgbIicudFYZdRd0' # Supabase API Key
+AWS_SECRET_ACCESS_KEY = 'sb_secret_N-toH37TG3-N469JBwp_Cg_0_EleU0V'
+AWS_STORAGE_BUCKET_NAME = 'medicine-images' 
+AWS_S3_ENDPOINT_URL = 'https://ajcrgouxaamkhumnnkkq.storage.supabase.co/storage/v1/s3'
+AWS_S3_REGION_NAME = 'ap-northeast-2' 
+AWS_DEFAULT_ACL = 'public-read' 

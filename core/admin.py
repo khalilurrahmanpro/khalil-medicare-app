@@ -15,4 +15,4 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     # এখানে phone এবং address আপনার মডেলের নামের সাথে মিল থাকতে হবে
-    list_display = ['user', 'phone', 'address', 'image']
+    list_display = ['user', 'phone', 'address',]
