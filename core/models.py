@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save 
 from django.dispatch import receiver
 from rest_framework import serializers
+from storages.backends.s3boto3 import S3Boto3Storage
 
 
 class Category(models.Model):
@@ -17,7 +18,7 @@ class Medicine(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    image = models.ImageField(upload_to='medicines/', blank=True, null=True) 
+    image = models.ImageField(upload_to='medicines/',storage=S3Boto3Storage(), blank=True, null=True) 
     price_per_box = models.DecimalField(max_digits=10, decimal_places=2)
     strips_per_box = models.IntegerField(default=10) 
     box_discount_percent = models.FloatField(default=0.0)  
