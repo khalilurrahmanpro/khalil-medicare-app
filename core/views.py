@@ -39,8 +39,8 @@ def get_medicines(request):
     results = []
     
     for med in medicines:
-        image_url = med.image.url if med.image else None
-        results.append({
+      image_url = str(med.image) if med.image else None
+    results.append({
             'id': med.id, 
             'name': med.name, 
             'company': med.company,

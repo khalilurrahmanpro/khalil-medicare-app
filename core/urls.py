@@ -20,7 +20,7 @@ urlpatterns = [
 
     # --- Admin Section ---
     path('admin-orders/', views.admin_orders),
-    path('admin-orders/<int:pk>/', views.update_order_status), # ডুপ্লিকেট রিমুভ করা হয়েছে
+    path('admin-orders/<int:pk>/', views.update_order_status), 
 
     # --- App System ---
     path('check-update/', views.check_update),

@@ -8,7 +8,6 @@ from storages.backends.s3boto3 import S3Boto3Storage
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
-    # আপনি চাইলে এখানে আইকন বা ছবির ফিল্ডও রাখতে পারেন
     def __str__(self):
         return self.name
 
@@ -41,9 +40,6 @@ class Prescription(models.Model):
     def __str__(self):
         return f"Prescription {self.id}"
     
-
-# models.py ফাইলে গিয়ে আপনার প্রোফাইল মডেলটি এরকম করুন:
-# models.py এ গিয়ে Profile মডেলটি এমন করুন:
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15, blank=True, null=True)
@@ -54,12 +50,10 @@ class Profile(models.Model):
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        # শুধুমাত্র নতুন ইউজারের জন্য প্রোফাইল তৈরি করবে
         Profile.objects.get_or_create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    # ইউজার সেভ হলে প্রোফাইলও সেভ হবে (যদি প্রোফাইল থাকে)
     if hasattr(instance, 'profile'):
         instance.profile.save()
 
@@ -77,7 +71,6 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class OrderItem(models.Model):
-    # এই related_name='items' না থাকলে ৫০০ এরর আসবে
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     medicine_name = models.CharField(max_length=255)
     quantity = models.IntegerField(default=1)
@@ -97,13 +90,11 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['username', 'email', 'phone', 'address'] # image নেই তাই বাদ দিন
+        fields = ['username', 'email', 'phone', 'address'] 
  
-# serializers.py (Django)
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        # এখানে 'id' অবশ্যই লিখবেন, নাহলে অ্যাপে #null দেখাবে
         fields = ['id', 'status', 'total_price', 'medicine_names', 'address', 'payment_method', 'created_at']
 
 from django.db import models

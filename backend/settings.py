@@ -126,8 +126,8 @@ REST_FRAMEWORK = {
     ],
 }
 
-AWS_ACCESS_KEY_ID = os.environ.get('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqY3Jnb3V4YWFta2h1bW5ua2txIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NjA3NDksImV4cCI6MjA5NzIzNjc0OX0.ZL1CNdJiFFbPyTLg-DscMPHJ_B5-pgbIicudFYZdRd0')
-AWS_SECRET_ACCESS_KEY = os.environ.get('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqY3Jnb3V4YWFta2h1bW5ua2txIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTY2MDc0OSwiZXhwIjoyMDk3MjM2NzQ5fQ.oMq7-pMlFiV24dXjYPFm7v3p5cl3Q_GjyfgYB3aT9qA')
+AWS_ACCESS_KEY_ID = os.environ.get('452db3f45ad9165eda9332b47deaf679')
+AWS_SECRET_ACCESS_KEY = os.environ.get('35c115c370c7b2c650b9a595cc624e72140f0b135f7a4f377c2f1dce2d923f56')
 AWS_STORAGE_BUCKET_NAME = 'medicine-images' 
 AWS_S3_ENDPOINT_URL = f"https://{os.environ.get('ajcrgouxaamkhumnnkkq')}.supabase.co/storage/v1/s3"
 AWS_S3_REGION_NAME = 'ap-northeast-2' 
