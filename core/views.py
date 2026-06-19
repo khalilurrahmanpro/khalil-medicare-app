@@ -39,8 +39,9 @@ def get_medicines(request):
     results = []
     
     for med in medicines:
-      image_url = str(med.image) if med.image else None
-    results.append({
+        image_url = str(med.image) if med.image else None
+        # append লজিকটি অবশ্যই লুপের ভেতরে (এক ধাপ ডানে) থাকতে হবে
+        results.append({
             'id': med.id, 
             'name': med.name, 
             'company': med.company,
@@ -53,7 +54,6 @@ def get_medicines(request):
             'stock_quantity': med.stock_quantity,
         })
     return Response(results)
-
 # --- AUTH: ইউজার রেজিস্ট্রেশন ---
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -195,11 +195,11 @@ def update_stock(request, pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
-    
     user = request.user
     profile, created = Profile.objects.get_or_create(user=user)
     
-    image_url = profile.image.url if profile.image else None
+    # এখানে .url এর বদলে str() ব্যবহার করুন, নাহলে ক্র্যাশ করবে
+    image_url = str(profile.image) if profile.image else None
     
     return Response({
         'username': user.username,
