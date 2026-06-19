@@ -121,8 +121,6 @@ def place_order(request):
 
             # ২. লুপ চালিয়ে প্রতিটি আইটেম সেভ করা
             for item in cart_items:
-                # এখানে খেয়াল করুন: Medicine (বড় হাতের M) হলো মডেলের নাম
-                # আর medicine_instance হলো আমাদের ভেরিয়েবল
                 try:
                     medicine_instance = Medicine.objects.get(name=item['name'])
                     
@@ -134,13 +132,12 @@ def place_order(request):
                     medicine_instance.stock_quantity -= item['quantity']
                     medicine_instance.save()
 
-                    # অর্ডারের আইটেম সেভ করা
                     OrderItem.objects.create(
                         order=order,
                         medicine_name=item['name'],
                         quantity=item['quantity'],
                         price=item['price'],
-                        unit_type=item.get('unit_type', 'Pcs') # ফ্রন্টএন্ড থেকে বক্স/পাতা আসা নিশ্চিত করুন
+                        unit_type=item.get('unit_type', 'Pcs') 
                     )
                 except Medicine.DoesNotExist:
                     raise Exception(f"ওষুধ '{item['name']}' ডাটাবেজে পাওয়া যায়নি!")
@@ -148,10 +145,8 @@ def place_order(request):
             return Response({'message': 'Order Success'}, status=status.HTTP_201_CREATED)
 
     except Exception as e:
-        # কোনো এরর হলে এখানে আসবে
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-# --- ORDER: কাস্টমার নিজের অর্ডার দেখবে ---
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_my_orders(request):
@@ -164,7 +159,6 @@ def get_my_orders(request):
         print(f"Error: {e}")
         return Response({"error": "Failed to load orders"}, status=500)
 
-# --- ADMIN: অর্ডার স্ট্যাটাস আপডেট ---
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_order_status(request, pk):
@@ -201,9 +195,8 @@ def update_stock(request, pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
-    # বর্তমানে যে লগইন করে আছে (request.user), তার ডাটা পাঠাবে
+    
     user = request.user
-    # প্রোফাইল মডেল থেকে ডাটা আনা (Profile মডেলটি ইমপোর্ট করা থাকতে হবে)
     profile, created = Profile.objects.get_or_create(user=user)
     
     image_url = profile.image.url if profile.image else None
@@ -216,12 +209,10 @@ def get_user_profile(request):
         'image': image_url,
     })
 
-# --- PROFILE: প্রোফাইল আপডেট করার জন্য ---
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def update_profile(request):
     user = request.user
-    # প্রোফাইল মডেলটি নিশ্চিত করুন (ইউজারের সাথে ওয়ান-টু-ওয়ান রিলেশন থাকতে হবে)
     profile, created = Profile.objects.get_or_create(user=user)
 
     user.email = request.data.get('email', user.email)
@@ -233,7 +224,6 @@ def update_profile(request):
 
     return Response({"message": "Profile updated successfully"})
 
-# --- STOCK: এডমিন কর্তৃক স্টক আপডেট করার জন্য ---
 @api_view(['PATCH', 'PUT'])
 @permission_classes([IsAdminUser])
 def update_stock(request, pk):
@@ -252,21 +242,18 @@ def update_stock(request, pk):
         return Response({"error": str(e)}, status=400)
 
 
-# --- PRESCRIPTION: প্রেসক্রিপশন ইমেজ আপলোড করার জন্য ---
 @api_view(['POST'])
-@permission_classes([AllowAny]) # প্রেসক্রিপশন যে কেউ আপলোড করতে পারবে
+@permission_classes([AllowAny]) 
 def upload_prescription(request):
     try:
         image = request.FILES.get('image')
         if image:
-            # Prescription মডেলটি নিশ্চিত করুন আপনার models.py তে আছে
             Prescription.objects.create(image=image)
             return Response({'status': 'success', 'message': 'Prescription uploaded successfully'}, status=status.HTTP_201_CREATED)
         return Response({'error': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-# --- APP UPDATE: আপডেট চেক ---
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def check_update(request):
