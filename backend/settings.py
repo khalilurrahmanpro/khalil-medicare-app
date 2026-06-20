@@ -125,13 +125,21 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
-SUPABASE_PROJECT_REF = 'ajcrgouxaamkhumnnkkq' 
-AWS_ACCESS_KEY_ID = os.environ.get('452db3f45ad9165eda9332b47deaf679')
-AWS_SECRET_ACCESS_KEY = os.environ.get('35c115c370c7b2c650b9a595cc624e72140f0b135f7a4f377c2f1dce2d923f56')
-AWS_STORAGE_BUCKET_NAME = 'medicine-images' 
-AWS_S3_ENDPOINT_URL = f"https://{os.environ.get('ajcrgouxaamkhumnnkkq')}.supabase.co/storage/v1/s3"
-AWS_S3_REGION_NAME = 'ap-northeast-2' 
+AWS_STORAGE_BUCKET_NAME = 'medicine-images'
+AWS_S3_REGION_NAME = 'ap-northeast-2'
+AWS_S3_ENDPOINT_URL = 'https://ajcrgouxaamkhumnnkkq.supabase.co/storage/v1/s3'
+AWS_ACCESS_KEY_ID = '452db3f45ad9165eda9332b47deaf679'
+AWS_SECRET_ACCESS_KEY = '35c115c370c7b2c650b9a595cc624e72140f0b135f7a4f377c2f1dce2d923f56'
 AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = 'None' 
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = False
+AWS_S3_VERIFY = True 
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
