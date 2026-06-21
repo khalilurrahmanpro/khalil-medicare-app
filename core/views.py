@@ -191,25 +191,30 @@ def update_stock(request, pk):
     except Exception as e:
         return Response({"error": str(e)}, status=400)
     
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
     try:
         user = request.user
         profile, created = Profile.objects.get_or_create(user=user)
-        image_name = str(profile.image) if profile.image else None
-        
+        image_name = ""
+        if profile.image:
+            try:
+                image_name = str(profile.image)
+            except:
+                image_name = ""
+
         return Response({
             'username': user.username,
             'email': user.email,
-            'phone': profile.phone, 
-            'address': profile.address,
+            'phone': getattr(profile, 'phone', ""), 
+            'address': getattr(profile, 'address', ""),
             'image': image_name,
             'is_superuser': user.is_superuser,
         })
     except Exception as e:
-        return Response({"error": str(e)}, status=500)
+        print(f"--- PROFILE ERROR DEBUG ---: {str(e)}")
+        return Response({"error": "Profile error", "details": str(e)}, status=500)
 
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
