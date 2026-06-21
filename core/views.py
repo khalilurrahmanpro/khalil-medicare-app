@@ -207,6 +207,7 @@ def get_user_profile(request):
         'phone': profile.phone, 
         'address': profile.address,
         'image': image_url,
+        'is_superuser': user.is_superuser,
     })
 
 @api_view(['PUT', 'PATCH'])
