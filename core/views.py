@@ -195,20 +195,21 @@ def update_stock(request, pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
-    user = request.user
-    profile, created = Profile.objects.get_or_create(user=user)
-    
-    # এখানে .url এর বদলে str() ব্যবহার করুন, নাহলে ক্র্যাশ করবে
-    image_url = str(profile.image) if profile.image else None
-    
-    return Response({
-        'username': user.username,
-        'email': user.email,
-        'phone': profile.phone, 
-        'address': profile.address,
-        'image': image_url,
-        'is_superuser': user.is_superuser,
-    })
+    try:
+        user = request.user
+        profile, created = Profile.objects.get_or_create(user=user)
+        image_name = str(profile.image) if profile.image else None
+        
+        return Response({
+            'username': user.username,
+            'email': user.email,
+            'phone': profile.phone, 
+            'address': profile.address,
+            'image': image_name,
+            'is_superuser': user.is_superuser,
+        })
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
