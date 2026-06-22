@@ -92,11 +92,22 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['username', 'email', 'phone', 'address'] 
- 
+
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['id', 'status', 'total_price', 'medicine_names', 'address', 'payment_method', 'created_at']
+        fields = ['id', 'status', 'total_price', 'medicine_names', 'address', 'payment_method', 'created_at', 'phone']
+        extra_kwargs = {
+            'address': {'required': False, 'allow_blank': True},
+            'phone': {'required': False, 'allow_blank': True}
+        }
 
-from django.db import models
-from django.contrib.auth.models import User
+    def create(self, validated_data):
+        user = self.context['request'].user
+        if not validated_data.get('address'):
+            validated_data['address'] = user.profile.address
+            
+        if not validated_data.get('phone'):
+            validated_data['phone'] = user.profile.phone
+
+        return super().create(validated_data)
